@@ -1,6 +1,6 @@
 {
   "name": "closest-http-endpoint",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "This package allows to find the closest HTTP/HTTPS endpoint given an array of URLs",
   "main": "index.js",
   "scripts": {
