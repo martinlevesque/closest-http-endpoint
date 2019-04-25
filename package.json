@@ -1,7 +1,7 @@
 {
   "name": "closest-http-endpoint",
-  "version": "0.0.1",
-  "description": "TODO",
+  "version": "0.0.2",
+  "description": "This package allows to find the closest HTTP/HTTPS endpoint given an array of URLs",
   "main": "index.js",
   "scripts": {
     "test": "node ./node_modules/mocha/bin/mocha"
