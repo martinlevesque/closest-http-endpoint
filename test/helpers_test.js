@@ -24,14 +24,14 @@ describe("helpers", function() {
     it("with valid url", async function() {
       nock("http://google.com")
         .get('/')
-        .socketDelay(500)
+        .delayConnection(500)
         .reply(200, {
           "site_name": "mysite",
           "valid": true
          });
 
       const result = await helpers.delayOf(`http://google.com/`)
-      expect(result.delay >= 0.005 && result.delay <= 0.006).to.equal(true)
+      expect(result.delay >= 0.5 && result.delay <= 0.6).to.equal(true)
       expect(result.url).to.equal("http://google.com/")
     })
 

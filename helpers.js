@@ -3,8 +3,8 @@ const https = require("https")
 const http = require("http")
 const urlUtil = require("url")
 
-const MAX_DELAY = 10000
-const TIMEOUT_REQUEST = 3 // seconds
+const INVALID_DELAY = 10000
+const DEFAULT_TIMEOUT_REQUEST = 3 // seconds
 
 function getProtocolPkg(url) {
   if (url && url.includes(`https:`)) {
@@ -14,23 +14,27 @@ function getProtocolPkg(url) {
   return http
 }
 
-function delayOf(url) {
+function delayOf(url, opts = {}) {
   const t1 = new Date()
+
+  if ( ! opts.timeoutRequest) {
+    opts.timeoutRequest = DEFAULT_TIMEOUT_REQUEST
+  }
 
   return new Promise((resolve, reject) => {
     const parsedUrl = urlUtil.parse(url)
 
-    const opts = {
+    const optsRequest = {
       hostname: parsedUrl.hostname,
       path: parsedUrl.path,
       port: parsedUrl.port,
-      timeout: TIMEOUT_REQUEST * 1000
+      timeout: opts.timeoutRequest * 1000 // convert in ms
     }
 
-    const req = getProtocolPkg(url).get(opts, (res) => {
+    const req = getProtocolPkg(url).get(optsRequest, (res) => {
       if (res.statusCode !== 200) {
         resolve({
-          delay: MAX_DELAY,
+          delay: INVALID_DELAY,
           url
         })
       } else {
@@ -48,7 +52,7 @@ function delayOf(url) {
     req.on('error', (err) => {
       resolve({
         url,
-        delay: MAX_DELAY
+        delay: INVALID_DELAY
       })
     })
   })
@@ -57,5 +61,5 @@ function delayOf(url) {
 module.exports = {
   delayOf,
   getProtocolPkg,
-  MAX_DELAY
+  INVALID_DELAY
 }
