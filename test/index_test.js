@@ -7,6 +7,8 @@ const defaultOptions = {
 }
 
 describe("index", function() {
+  this.timeout(10000);
+
   describe('closestHttpEndpoint', function() {
     it("with single url", async function() {
       nock("http://google.com")
@@ -19,6 +21,46 @@ describe("index", function() {
 
       const result = await index(defaultOptions)([`http://google.com/`])
       expect(result).to.equal("http://google.com/")
+    })
+
+    it("with timeout with one responding", async function() {
+      nock("http://google.com")
+        .get('/')
+        .delayConnection(1000000)
+        .reply(200, {
+          "site_name": "mysite",
+          "valid": true
+         });
+
+       nock("http://yahoo.com/")
+         .get('/')
+         .delayConnection(1)
+         .reply(200, {
+           "site_name": "mysite",
+           "valid": true
+          });
+
+      const opts = {
+        timeoutRequest: 1
+      }
+      const result = await index(opts)([`http://google.com/`, `http://yahoo.com/`])
+      expect(result).to.equal("http://yahoo.com/")
+    })
+
+    it("with timeout without response", async function() {
+      nock("http://google.com")
+        .get('/')
+        .delayConnection(1000000)
+        .reply(200, {
+          "site_name": "mysite",
+          "valid": true
+         });
+
+      const opts = {
+        timeoutRequest: 1
+      }
+      const result = await index(opts)([`http://google.com/`])
+      expect(result).to.equal(undefined)
     })
 
     it("with short timeout", async function() {

@@ -1,12 +1,27 @@
 
 const helpers = require("./helpers")
+const constants = require("./constants")
+const { timeout, TimeoutError } = require("promise-timeout")
 
 async function closestHttpEndpoint(urls, opts = {}) {
-  const delays = await Promise.all(urls.map((url) => helpers.delayOf(url)))
+  if ( ! opts.timeoutRequest) {
+    opts.timeoutRequest = constants.DEFAULT_TIMEOUT_REQUEST
+  }
+
+  const delays = await Promise.all(urls.map((url) => {
+    return timeout(helpers.delayOf(url, opts), opts.timeoutRequest * 1000)
+      .then((result) => result)
+      .catch((err) => {
+        return {
+          url,
+          delay: constants.INVALID_DELAY
+        }
+      })
+  }))
 
   return delays.reduce((min, delayUrl) => {
     return delayUrl.delay < min.delay ? delayUrl : min
-  }, { delay: helpers.INVALID_DELAY }).url
+  }, { delay: constants.INVALID_DELAY }).url
 }
 
 module.exports = (opts) => {
